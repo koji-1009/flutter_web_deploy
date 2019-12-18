@@ -1,0 +1,31 @@
+name: CI
+
+on: 
+  push:
+    branches: 
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install flutter (beta channel)
+      uses: subosito/flutter-action@v1
+      with:
+        channel: 'beta'
+    - name: Enable Flutter for Web
+      run: flutter config --enable-web
+    - name: Build Flutter for Web
+      run: flutter build web
+    - name: copy resource
+      run: cp -rf build/web/* public/
+    - name: Firebase GitHub Action
+      uses: pizzafox/firebase-action@1.0.7
+      env:
+        PROJECT_ID: "flutter-web-deploy-demo"
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      with:
+        args: deploy
